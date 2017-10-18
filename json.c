@@ -19,7 +19,7 @@
 #include "tree.h"
 
 extern bool dflag, lflag, pflag, sflag, Fflag, aflag, fflag, uflag, gflag;
-extern bool Dflag, inodeflag, devflag, Rflag, cflag;
+extern bool Dflag, inodeflag, devflag, Rflag, cflag, Zflag;
 extern bool noindent, force_color, xdev, nolinks, flimit;
 
 extern const int ifmt[];
@@ -302,4 +302,5 @@ void json_fillinfo(struct _info *ent)
   if (gflag) fprintf(outfile, ",\"group\":\"%s\"", gidtoname(ent->gid));
   if (sflag) fprintf(outfile, ",\"size\":%lld", (long long int)ent->size);
   if (Dflag) fprintf(outfile, ",\"time\":\"%s\"", do_date(cflag? ent->ctime : ent->mtime));
+  if (Zflag) fprintf(outfile, ",\"secontext\":\"%s\"", ent->secontext);
 }

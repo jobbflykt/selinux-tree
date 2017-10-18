@@ -25,12 +25,12 @@ TREE_DEST=tree
 BINDIR=${prefix}/bin
 MAN=tree.1
 MANDIR=${prefix}/man/man1
-OBJS=tree.o unix.o html.o xml.o json.o hash.o color.o
+OBJS=tree.o unix.o html.o xml.o json.o hash.o color.o secontext.o
 
 # Uncomment options below for your particular OS:
 
 # Linux defaults:
-CFLAGS=-ggdb -Wall -DLINUX -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
+CFLAGS=-ggdb -Wall -O3 -DLINUX -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 #CFLAGS=-O4 -Wall  -DLINUX -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 #LDFLAGS=-s
 
@@ -105,7 +105,7 @@ install: tree
 distclean:
 	if [ -f tree.o ]; then rm *.o; fi
 	rm -f *~
-	
+
 
 dist:	distclean
 	tar zcf ../tree-$(VERSION).tgz -C .. `cat .tarball`

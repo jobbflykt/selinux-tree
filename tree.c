@@ -30,6 +30,7 @@ bool dflag, lflag, pflag, sflag, Fflag, aflag, fflag, uflag, gflag;
 bool qflag, Nflag, Qflag, Dflag, inodeflag, devflag, hflag, Rflag;
 bool Hflag, siflag, cflag, Xflag, Jflag, duflag, pruneflag;
 bool noindent, force_color, nocolor, xdev, noreport, nolinks, flimit, dirsfirst;
+bool Zflag;
 bool ignorecase, matchdirs;
 bool reverse;
 char *pattern = NULL, *ipattern = NULL, *host = NULL, *title = "Directory Tree", *sp = " ", *_nl = "\n";
@@ -96,6 +97,7 @@ int main(int argc, char **argv)
   Dflag = qflag = Nflag = Qflag = Rflag = hflag = Hflag = siflag = cflag = FALSE;
   noindent = force_color = nocolor = xdev = noreport = nolinks = reverse = FALSE;
   ignorecase = matchdirs = dirsfirst = inodeflag = devflag = Xflag = Jflag = FALSE;
+  Zflag = FALSE;
   duflag = pruneflag = FALSE;
   flimit = 0;
   dirs = xmalloc(sizeof(int) * (maxdirs=4096));
@@ -265,6 +267,9 @@ int main(int argc, char **argv)
 	  }
 	  outfilename = argv[n++];
 	  break;
+        case 'Z':
+          Zflag = TRUE;
+          break;
 	case '-':
 	  if (j == 1) {
 	    if (!strcmp("--", argv[i])) {
@@ -602,7 +607,7 @@ void usage(int n)
   /*     123456789!123456789!123456789!123456789!123456789!123456789!123456789!123456789! */
   /*     \t9!123456789!123456789!123456789!123456789!123456789!123456789!123456789! */
   fprintf(n < 2? stderr: stdout,
-	"usage: tree [-acdfghilnpqrstuvxACDFJQNSUX] [-H baseHREF] [-T title ]\n"
+	"usage: tree [-acdfghilnpqrstuvxACDFJQNSUXZ] [-H baseHREF] [-T title ]\n"
 	"\t[-L level [-R]] [-P pattern] [-I pattern] [-o filename] [--version]\n"
 	"\t[--help] [--inodes] [--device] [--noreport] [--nolinks] [--dirsfirst]\n"
 	"\t[--charset charset] [--filelimit[=]#] [--si] [--timefmt[=]<f>]\n"
@@ -640,6 +645,7 @@ void usage(int n)
 	"  -F            Appends '/', '=', '*', '@', '|' or '>' as per ls -F.\n"
 	"  --inodes      Print inode number of each file.\n"
 	"  --device      Print device ID number to which each file belongs.\n"
+        "  -Z            Print SELinux security context.\n"
 	"  ------- Sorting options -------\n"
 	"  -v            Sort files alphanumerically by version.\n"
 	"  -t            Sort files by last modification time.\n"
@@ -739,6 +745,8 @@ struct _info **read_dir(char *dir, int *n)
     dl[p]->atime = lst.st_atime;
     dl[p]->ctime = lst.st_ctime;
     dl[p]->mtime = lst.st_mtime;
+
+    dl[p]->secontext = Zflag ? get_secontext(path) : NULL;
 
 #ifdef __EMX__
     dl[p]->attr = lst.st_attr;
@@ -984,6 +992,7 @@ void free_dir(struct _info **d)
   for(i=0;d[i];i++) {
     free(d[i]->name);
     if (d[i]->lnk) free(d[i]->lnk);
+    if (d[i]->secontext) free(d[i]->secontext);
     free(d[i]);
   }
   free(d);
@@ -1283,6 +1292,7 @@ char *fillinfo(char *buf, struct _info *ent)
   if (gflag) n += sprintf(buf+n, " %-8.32s", gidtoname(ent->gid));
   if (sflag) n += psize(buf+n,ent->size);
   if (Dflag) n += sprintf(buf+n, " %s", do_date(cflag? ent->ctime : ent->mtime));
-  
+  if (Zflag) n += sprintf(buf+n, " %s", ent->secontext);
+
   return buf;
 }

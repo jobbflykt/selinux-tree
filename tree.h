@@ -86,6 +86,7 @@ struct _info {
   time_t atime, ctime, mtime;
   dev_t dev;
   ino_t inode;
+  char *secontext;
   #ifdef __EMX__
   long attr;
   #endif
@@ -189,3 +190,6 @@ void saveino(ino_t, dev_t);
 #if ! defined (LINUX)
 int strverscmp (const char *s1, const char *s2);
 #endif
+
+/* secontext.c */
+char *get_secontext(const char *path);

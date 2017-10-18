@@ -12,7 +12,7 @@
 .SH NOM
 tree \- liste le contenu de répertoires sous forme d'arborescence
 .SH SYNOPSIS
-\fBtree\fP [ \fB-adfgilnopqstuxACDFNS\fP ] [ \fB-L\fP \fIniveau\fP [ \fB-R\fP ]] [ \fB-H\fP \fIbaseHREF\fP ] [ \fB-P\fP \fImotif\fP ] [ \fB-I\fP \fImotif\fP ] [ \fIrepertoire\fP ... ]
+\fBtree\fP [ \fB-adfgilnopqstuxACDFNSZ\fP ] [ \fB-L\fP \fIniveau\fP [ \fB-R\fP ]] [ \fB-H\fP \fIbaseHREF\fP ] [ \fB-P\fP \fImotif\fP ] [ \fB-I\fP \fImotif\fP ] [ \fIrepertoire\fP ... ]
 .br
 .SH DESCRIPTION
 \fITree\fP est un programme de listage récursif de répertoires qui produit
@@ -203,6 +203,10 @@ ANSI avec cette option, et n'indiquez pas plus d'un répertoire dans la
 liste des répertoires. Si vous voulez utiliser des couleurs via une feuille
 de style CSS, utilisez l'option -C en plus de cette option pour forcer la
 sortie en couleurs.
+.PP
+.TP
+.B -Z
+Afficher les SELinux context pour chaque fichier (comme avec ls -l)
 .PP
 .br
 .SH FICHIERS

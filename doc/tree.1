@@ -21,7 +21,7 @@
 .SH NAME
 tree \- list contents of directories in a tree-like format.
 .SH SYNOPSIS
-\fBtree\fP [\fB-acdfghilnpqrstuvxACDFQNSUX\fP] [\fB-L\fP \fIlevel\fP [\fB-R\fP]] [\fB-H\fP \fIbaseHREF\fP] [\fB-T\fP \fItitle\fP] [\fB-o\fP \fIfilename\fP] [\fB--nolinks\fP] [\fB-P\fP \fIpattern\fP] [\fB-I\fP \fIpattern\fP] [\fB--inodes\fP] [\fB--device\fP] [\fB--noreport\fP] [\fB--dirsfirst\fP] [\fB--version\fP] [\fB--help\fP] [\fB--filelimit\fP \fI#\fP] [\fB--si\fP] [\fB--prune\fP] [\fB--du\fP] [\fB--timefmt\fP \fIformat\fP] [\fB--matchdirs\fP] [\fB--\fP] [\fIdirectory\fP ...]
+\fBtree\fP [\fB-acdfghilnpqrstuvxACDFQNSUXZ\fP] [\fB-L\fP \fIlevel\fP [\fB-R\fP]] [\fB-H\fP \fIbaseHREF\fP] [\fB-T\fP \fItitle\fP] [\fB-o\fP \fIfilename\fP] [\fB--nolinks\fP] [\fB-P\fP \fIpattern\fP] [\fB-I\fP \fIpattern\fP] [\fB--inodes\fP] [\fB--device\fP] [\fB--noreport\fP] [\fB--dirsfirst\fP] [\fB--version\fP] [\fB--help\fP] [\fB--filelimit\fP \fI#\fP] [\fB--si\fP] [\fB--prune\fP] [\fB--du\fP] [\fB--timefmt\fP \fIformat\fP] [\fB--matchdirs\fP] [\fB--\fP] [\fIdirectory\fP ...]
 
 .br
 .SH DESCRIPTION
@@ -207,6 +207,10 @@ Prints the inode number of the file or directory
 .TP
 .B --device
 Prints the device number to which the file or directory belongs
+.PP
+.TP
+.B -Z
+Prints the SELinux context for each file (as per ls -Z).
 .PP
 
 .SH SORTING OPTIONS
