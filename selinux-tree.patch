@@ -1,0 +1,312 @@
+diff --git a/Makefile b/Makefile
+index e91f1f6..539b676 100644
+--- a/Makefile
++++ b/Makefile
+@@ -25,12 +25,12 @@ TREE_DEST=tree
+ BINDIR=${prefix}/bin
+ MAN=tree.1
+ MANDIR=${prefix}/man/man1
+-OBJS=tree.o unix.o html.o xml.o json.o hash.o color.o
++OBJS=tree.o unix.o html.o xml.o json.o hash.o color.o secontext.o
+ 
+ # Uncomment options below for your particular OS:
+ 
+ # Linux defaults:
+-CFLAGS=-ggdb -Wall -DLINUX -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
++CFLAGS=-ggdb -Wall -O3 -DLINUX -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
+ #CFLAGS=-O4 -Wall  -DLINUX -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
+ #LDFLAGS=-s
+ 
+@@ -105,7 +105,7 @@ install: tree
+ distclean:
+ 	if [ -f tree.o ]; then rm *.o; fi
+ 	rm -f *~
+-	
++
+ 
+ dist:	distclean
+ 	tar zcf ../tree-$(VERSION).tgz -C .. `cat .tarball`
+diff --git a/doc/tree.1 b/doc/tree.1
+index 96a6606..34a8721 100644
+--- a/doc/tree.1
++++ b/doc/tree.1
+@@ -21,7 +21,7 @@
+ .SH NAME
+ tree \- list contents of directories in a tree-like format.
+ .SH SYNOPSIS
+-\fBtree\fP [\fB-acdfghilnpqrstuvxACDFQNSUX\fP] [\fB-L\fP \fIlevel\fP [\fB-R\fP]] [\fB-H\fP \fIbaseHREF\fP] [\fB-T\fP \fItitle\fP] [\fB-o\fP \fIfilename\fP] [\fB--nolinks\fP] [\fB-P\fP \fIpattern\fP] [\fB-I\fP \fIpattern\fP] [\fB--inodes\fP] [\fB--device\fP] [\fB--noreport\fP] [\fB--dirsfirst\fP] [\fB--version\fP] [\fB--help\fP] [\fB--filelimit\fP \fI#\fP] [\fB--si\fP] [\fB--prune\fP] [\fB--du\fP] [\fB--timefmt\fP \fIformat\fP] [\fB--matchdirs\fP] [\fB--\fP] [\fIdirectory\fP ...]
++\fBtree\fP [\fB-acdfghilnpqrstuvxACDFQNSUXZ\fP] [\fB-L\fP \fIlevel\fP [\fB-R\fP]] [\fB-H\fP \fIbaseHREF\fP] [\fB-T\fP \fItitle\fP] [\fB-o\fP \fIfilename\fP] [\fB--nolinks\fP] [\fB-P\fP \fIpattern\fP] [\fB-I\fP \fIpattern\fP] [\fB--inodes\fP] [\fB--device\fP] [\fB--noreport\fP] [\fB--dirsfirst\fP] [\fB--version\fP] [\fB--help\fP] [\fB--filelimit\fP \fI#\fP] [\fB--si\fP] [\fB--prune\fP] [\fB--du\fP] [\fB--timefmt\fP \fIformat\fP] [\fB--matchdirs\fP] [\fB--\fP] [\fIdirectory\fP ...]
+ 
+ .br
+ .SH DESCRIPTION
+@@ -208,6 +208,10 @@ Prints the inode number of the file or directory
+ .B --device
+ Prints the device number to which the file or directory belongs
+ .PP
++.TP
++.B -Z
++Prints the SELinux context for each file (as per ls -Z).
++.PP
+ 
+ .SH SORTING OPTIONS
+ 
+diff --git a/doc/tree.1.fr b/doc/tree.1.fr
+index 858b490..4bb19c8 100644
+--- a/doc/tree.1.fr
++++ b/doc/tree.1.fr
+@@ -12,7 +12,7 @@
+ .SH NOM
+ tree \- liste le contenu de répertoires sous forme d'arborescence
+ .SH SYNOPSIS
+-\fBtree\fP [ \fB-adfgilnopqstuxACDFNS\fP ] [ \fB-L\fP \fIniveau\fP [ \fB-R\fP ]] [ \fB-H\fP \fIbaseHREF\fP ] [ \fB-P\fP \fImotif\fP ] [ \fB-I\fP \fImotif\fP ] [ \fIrepertoire\fP ... ]
++\fBtree\fP [ \fB-adfgilnopqstuxACDFNSZ\fP ] [ \fB-L\fP \fIniveau\fP [ \fB-R\fP ]] [ \fB-H\fP \fIbaseHREF\fP ] [ \fB-P\fP \fImotif\fP ] [ \fB-I\fP \fImotif\fP ] [ \fIrepertoire\fP ... ]
+ .br
+ .SH DESCRIPTION
+ \fITree\fP est un programme de listage récursif de répertoires qui produit
+@@ -204,6 +204,10 @@ liste des r
+ de style CSS, utilisez l'option -C en plus de cette option pour forcer la
+ sortie en couleurs.
+ .PP
++.TP
++.B -Z
++Afficher les SELinux context pour chaque fichier (comme avec ls -l)
++.PP
+ .br
+ .SH FICHIERS
+ /etc/DIR_COLORS		Base de données des couleurs système
+diff --git a/doc/xml.dtd b/doc/xml.dtd
+index ce5863f..7b8176f 100644
+--- a/doc/xml.dtd
++++ b/doc/xml.dtd
+@@ -25,6 +25,7 @@
+   group CDATA #IMPLIED
+   size CDATA #IMPLIED
+   time CDATA #IMPLIED
++  secontext CDATA #IMPLIED
+ >
+ <!ATTLIST link
+   name CDATA #REQUIRED
+@@ -37,6 +38,7 @@
+   group CDATA #IMPLIED
+   size CDATA #IMPLIED
+   time CDATA #IMPLIED
++  secontext CDATA #IMPLIED
+ >
+ <!ATTLIST file
+   name CDATA #REQUIRED
+@@ -48,6 +50,7 @@
+   group CDATA #IMPLIED
+   size CDATA #IMPLIED
+   time CDATA #IMPLIED
++  secontext CDATA #IMPLIED
+ >
+ <!ATTLIST char
+   name CDATA #REQUIRED
+@@ -59,6 +62,7 @@
+   group CDATA #IMPLIED
+   size CDATA #IMPLIED
+   time CDATA #IMPLIED
++  secontext CDATA #IMPLIED
+ >
+ <!ATTLIST block
+   name CDATA #REQUIRED
+@@ -70,6 +74,7 @@
+   group CDATA #IMPLIED
+   size CDATA #IMPLIED
+   time CDATA #IMPLIED
++  secontext CDATA #IMPLIED
+ >
+ <!ATTLIST socket
+   name CDATA #REQUIRED
+@@ -81,6 +86,7 @@
+   group CDATA #IMPLIED
+   size CDATA #IMPLIED
+   time CDATA #IMPLIED
++  secontext CDATA #IMPLIED
+ >
+ <!ATTLIST fifo
+   name CDATA #REQUIRED
+@@ -92,6 +98,7 @@
+   group CDATA #IMPLIED
+   size CDATA #IMPLIED
+   time CDATA #IMPLIED
++  secontext CDATA #IMPLIED
+ >
+ <!ATTLIST door
+   name CDATA #REQUIRED
+@@ -103,6 +110,7 @@
+   group CDATA #IMPLIED
+   size CDATA #IMPLIED
+   time CDATA #IMPLIED
++  secontext CDATA #IMPLIED
+ >
+ <!ATTLIST port
+   name CDATA #REQUIRED
+@@ -114,4 +122,5 @@
+   group CDATA #IMPLIED
+   size CDATA #IMPLIED
+   time CDATA #IMPLIED
++  secontext CDATA #IMPLIED
+ >
+diff --git a/json.c b/json.c
+index 4b15e0d..ba3124f 100644
+--- a/json.c
++++ b/json.c
+@@ -19,7 +19,7 @@
+ #include "tree.h"
+ 
+ extern bool dflag, lflag, pflag, sflag, Fflag, aflag, fflag, uflag, gflag;
+-extern bool Dflag, inodeflag, devflag, Rflag, cflag;
++extern bool Dflag, inodeflag, devflag, Rflag, cflag, Zflag;
+ extern bool noindent, force_color, xdev, nolinks, flimit;
+ 
+ extern const int ifmt[];
+@@ -302,4 +302,5 @@ void json_fillinfo(struct _info *ent)
+   if (gflag) fprintf(outfile, ",\"group\":\"%s\"", gidtoname(ent->gid));
+   if (sflag) fprintf(outfile, ",\"size\":%lld", (long long int)ent->size);
+   if (Dflag) fprintf(outfile, ",\"time\":\"%s\"", do_date(cflag? ent->ctime : ent->mtime));
++  if (Zflag) fprintf(outfile, ",\"secontext\":\"%s\"", ent->secontext);
+ }
+diff --git a/secontext.c b/secontext.c
+new file mode 100644
+index 0000000..8bf5abc
+--- /dev/null
++++ b/secontext.c
+@@ -0,0 +1,26 @@
++#include "tree.h"
++
++#if defined(LINUX)
++#include <sys/xattr.h>
++#endif
++
++char *get_secontext(const char *path)
++{
++  char *buf;
++  ssize_t len;
++  const size_t maxlen = 255;
++
++  buf = xmalloc(maxlen + 1);
++#if defined(LINUX)
++  len = getxattr(path, "security.selinux", buf, maxlen);
++  if(len >= 0)
++  {
++    buf[len] = '\0';
++  }
++  else
++#endif
++  {
++    strcpy(buf, "[Error reading selinux context]");
++  }
++  return buf;
++}
+diff --git a/tree.c b/tree.c
+index e7d85d2..2d69791 100644
+--- a/tree.c
++++ b/tree.c
+@@ -30,6 +30,7 @@ bool dflag, lflag, pflag, sflag, Fflag, aflag, fflag, uflag, gflag;
+ bool qflag, Nflag, Qflag, Dflag, inodeflag, devflag, hflag, Rflag;
+ bool Hflag, siflag, cflag, Xflag, Jflag, duflag, pruneflag;
+ bool noindent, force_color, nocolor, xdev, noreport, nolinks, flimit, dirsfirst;
++bool Zflag;
+ bool ignorecase, matchdirs;
+ bool reverse;
+ char *pattern = NULL, *ipattern = NULL, *host = NULL, *title = "Directory Tree", *sp = " ", *_nl = "\n";
+@@ -96,6 +97,7 @@ int main(int argc, char **argv)
+   Dflag = qflag = Nflag = Qflag = Rflag = hflag = Hflag = siflag = cflag = FALSE;
+   noindent = force_color = nocolor = xdev = noreport = nolinks = reverse = FALSE;
+   ignorecase = matchdirs = dirsfirst = inodeflag = devflag = Xflag = Jflag = FALSE;
++  Zflag = FALSE;
+   duflag = pruneflag = FALSE;
+   flimit = 0;
+   dirs = xmalloc(sizeof(int) * (maxdirs=4096));
+@@ -265,6 +267,9 @@ int main(int argc, char **argv)
+ 	  }
+ 	  outfilename = argv[n++];
+ 	  break;
++        case 'Z':
++          Zflag = TRUE;
++          break;
+ 	case '-':
+ 	  if (j == 1) {
+ 	    if (!strcmp("--", argv[i])) {
+@@ -602,7 +607,7 @@ void usage(int n)
+   /*     123456789!123456789!123456789!123456789!123456789!123456789!123456789!123456789! */
+   /*     \t9!123456789!123456789!123456789!123456789!123456789!123456789!123456789! */
+   fprintf(n < 2? stderr: stdout,
+-	"usage: tree [-acdfghilnpqrstuvxACDFJQNSUX] [-H baseHREF] [-T title ]\n"
++	"usage: tree [-acdfghilnpqrstuvxACDFJQNSUXZ] [-H baseHREF] [-T title ]\n"
+ 	"\t[-L level [-R]] [-P pattern] [-I pattern] [-o filename] [--version]\n"
+ 	"\t[--help] [--inodes] [--device] [--noreport] [--nolinks] [--dirsfirst]\n"
+ 	"\t[--charset charset] [--filelimit[=]#] [--si] [--timefmt[=]<f>]\n"
+@@ -640,6 +645,7 @@ void usage(int n)
+ 	"  -F            Appends '/', '=', '*', '@', '|' or '>' as per ls -F.\n"
+ 	"  --inodes      Print inode number of each file.\n"
+ 	"  --device      Print device ID number to which each file belongs.\n"
++        "  -Z            Print SELinux security context.\n"
+ 	"  ------- Sorting options -------\n"
+ 	"  -v            Sort files alphanumerically by version.\n"
+ 	"  -t            Sort files by last modification time.\n"
+@@ -740,6 +746,8 @@ struct _info **read_dir(char *dir, int *n)
+     dl[p]->ctime = lst.st_ctime;
+     dl[p]->mtime = lst.st_mtime;
+ 
++    dl[p]->secontext = Zflag ? get_secontext(path) : NULL;
++
+ #ifdef __EMX__
+     dl[p]->attr = lst.st_attr;
+ #else
+@@ -984,6 +992,7 @@ void free_dir(struct _info **d)
+   for(i=0;d[i];i++) {
+     free(d[i]->name);
+     if (d[i]->lnk) free(d[i]->lnk);
++    if (d[i]->secontext) free(d[i]->secontext);
+     free(d[i]);
+   }
+   free(d);
+@@ -1283,6 +1292,7 @@ char *fillinfo(char *buf, struct _info *ent)
+   if (gflag) n += sprintf(buf+n, " %-8.32s", gidtoname(ent->gid));
+   if (sflag) n += psize(buf+n,ent->size);
+   if (Dflag) n += sprintf(buf+n, " %s", do_date(cflag? ent->ctime : ent->mtime));
+-  
++  if (Zflag) n += sprintf(buf+n, " %s", ent->secontext);
++
+   return buf;
+ }
+diff --git a/tree.h b/tree.h
+index 9be3570..76cebe2 100644
+--- a/tree.h
++++ b/tree.h
+@@ -86,6 +86,7 @@ struct _info {
+   time_t atime, ctime, mtime;
+   dev_t dev;
+   ino_t inode;
++  char *secontext;
+   #ifdef __EMX__
+   long attr;
+   #endif
+@@ -189,3 +190,6 @@ void saveino(ino_t, dev_t);
+ #if ! defined (LINUX)
+ int strverscmp (const char *s1, const char *s2);
+ #endif
++
++/* secontext.c */
++char *get_secontext(const char *path);
+diff --git a/xml.c b/xml.c
+index 32f3c0c..4acc848 100644
+--- a/xml.c
++++ b/xml.c
+@@ -19,7 +19,7 @@
+ #include "tree.h"
+ 
+ extern bool dflag, lflag, pflag, sflag, Fflag, aflag, fflag, uflag, gflag;
+-extern bool Dflag, inodeflag, devflag, Rflag, cflag;
++extern bool Dflag, inodeflag, devflag, Rflag, cflag, Zflag;
+ extern bool noindent, force_color, xdev, nolinks, flimit;
+ 
+ extern const int ifmt[];
+@@ -300,4 +300,5 @@ void xml_fillinfo(struct _info *ent)
+   if (gflag) fprintf(outfile, " group=\"%s\"", gidtoname(ent->gid));
+   if (sflag) fprintf(outfile, " size=\"%lld\"", (long long int)(ent->size));
+   if (Dflag) fprintf(outfile, " time=\"%s\"", do_date(cflag? ent->ctime : ent->mtime));
++  if (Zflag) fprintf(outfile, " secontext=\"%s\"", ent->secontext);
+ }
